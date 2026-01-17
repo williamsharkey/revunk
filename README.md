@@ -500,16 +500,16 @@ All frontends use the same shader code and parameters.
 
 ---
 
-## Self-contained exports (re‑vunklable artifacts)
+## Re‑vunklable exports (metadata‑complete, source‑referencing artifacts)
 
-Every Vunkle export is **self‑contained**.
+Every Vunkle export is **metadata‑complete and re‑vunklable**.
 
 This means:
-- Source media is embedded inside the export
+- **Source media is not embedded** in the export
 - A full project description is embedded as metadata
-- Any exported artifact can be reopened and remixed without external files
+- The export contains enough information to *re‑discover* the original sources
 
-Losing source files or remixing someone else’s work should never block re‑editing.
+Exports remain lightweight while still enabling recovery and remixing.
 
 ---
 
@@ -517,10 +517,12 @@ Losing source files or remixing someone else’s work should never block re‑ed
 
 Each export bundles:
 
-1. **Original source media**
-   - Video files
-   - Audio tracks
-   - Shader source files
+1. **Source references (not media)**
+   - Original file names
+   - File sizes
+   - Content hashes
+   - Expected durations
+   - Any offsets or trims used
 
 2. **Project vunkle metadata**
    - The exact `.vunkle.txt` used
@@ -533,7 +535,7 @@ Each export bundles:
 
 ---
 
-### Metadata vunkle
+### Metadata vunkle (source‑referencing)
 
 Every export contains an embedded **metadata vunkle**, conceptually equivalent to:
 
