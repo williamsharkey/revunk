@@ -154,6 +154,54 @@ This walkthrough exists to build confidence, not to hide complexity.
 
 ## Multivunks (composing vunkles)
 
+### Multivunk text schema (draft)
+
+Multivunks extend the text‑first model. A multivunk file references multiple vunkles and defines how their beat clocks relate.
+
+```text
+# multivunk.vunkle.txt
+
+output:
+  bpm: 120
+
+sources:
+  - id: drums
+    file: drums.vunkle.txt
+    mode: follow-master        # follow-master | follow-source | fixed-bpm
+    pitch:
+      semitones: 0
+      cents: 0
+
+  - id: bass
+    file: bass.vunkle.txt
+    mode: fixed-bpm
+    bpm: 120
+    pitch:
+      semitones: -12
+      cents: 0
+
+  - id: pads
+    file: pads.vunkle.txt
+    mode: follow-source
+
+# optional timeline tempo changes
+bpm-change:
+  33 128
+  65 110
+
+# arrangement is still beat-first
+export:
+  drums:  1 2 3 4 5 6 7 8
+  bass:   1 1 2 2 3 3 4 4
+  pads:   -7 -6 -5 -4 -3 -2 -1 0
+```
+
+Notes:
+- Each source keeps its own anchors internally.
+- The multivunk layer only declares **relationships** between clocks.
+- All transforms are explicit and reversible.
+
+
 Vunkle supports **multivunks**: compositions made from multiple already‑vunkled videos.
 
 A multivunk treats each source vunkle as a **beat‑aware block** that can be tuned, aligned, and arranged together.
