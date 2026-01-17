@@ -1,3 +1,4 @@
+#if canImport(XCTest)
 import XCTest
 @testable import VunkleCore
 
@@ -41,3 +42,4 @@ final class VunkleTextParserTests: XCTestCase {
         XCTAssertEqual(file.tempoChanges.first?.bpm, 90)
     }
 }
+#endif

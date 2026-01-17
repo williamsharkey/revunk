@@ -6,13 +6,13 @@ import XCTest
 final class VunkleExportIntegrationTests: XCTestCase {
 
     var testVideo: String {
-        ProcessInfo.processInfo.environment["VUNKLE_TEST_VIDEO"] ?? ""
+        ProcessInfo.processInfo.environment["REVUNK_TEST_VIDEO"] ?? ""
     }
 
     func run(_ args: [String]) throws -> Int32 {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        p.arguments = ["vunkle"] + args
+        p.arguments = ["revunk"] + args
         try p.run()
         p.waitUntilExit()
         return p.terminationStatus
@@ -20,12 +20,12 @@ final class VunkleExportIntegrationTests: XCTestCase {
 
     func testExportProducesOutput() throws {
         guard !testVideo.isEmpty else {
-            throw XCTSkip("VUNKLE_TEST_VIDEO not set")
+            throw XCTSkip("REVUNK_TEST_VIDEO not set")
         }
 
         let tmp = FileManager.default.temporaryDirectory
-        let vunk = tmp.appendingPathComponent("test-export.vunkle.txt")
-        let out = tmp.appendingPathComponent("test-export.vunkle.out.mp4")
+        let vunk = tmp.appendingPathComponent("test-export.revunk.txt")
+        let out = tmp.appendingPathComponent("test-export.revunk.out.mp4")
 
         let text = """
         video: \(testVideo)

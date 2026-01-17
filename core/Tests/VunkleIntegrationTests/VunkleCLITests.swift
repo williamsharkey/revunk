@@ -3,15 +3,15 @@ import XCTest
 final class VunkleCLITests: XCTestCase {
 
     /// Set this env var to point at a real test video (e.g. secret-world.mp4)
-    /// export VUNKLE_TEST_VIDEO=/path/to/video.mp4
+    /// export REVUNK_TEST_VIDEO=/path/to/video.mp4
     var testVideo: String {
-        ProcessInfo.processInfo.environment["VUNKLE_TEST_VIDEO"] ?? ""
+        ProcessInfo.processInfo.environment["REVUNK_TEST_VIDEO"] ?? ""
     }
 
     func run(_ args: [String]) throws -> (Int32, String) {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/usr/bin/env")
-        p.arguments = ["vunkle"] + args
+        p.arguments = ["revunk"] + args
         let pipe = Pipe()
         p.standardOutput = pipe
         p.standardError = pipe
@@ -25,11 +25,11 @@ final class VunkleCLITests: XCTestCase {
     func testHelp() throws {
         let (code, out) = try run(["--help"])
         XCTAssertEqual(code, 0)
-        XCTAssertTrue(out.lowercased().contains("vunkle"))
+        XCTAssertTrue(out.lowercased().contains("revunk"))
     }
 
     func testFormatRoundTrip() throws {
-        let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("test.vunkle.txt")
+        let tmp = FileManager.default.temporaryDirectory.appendingPathComponent("test.revunk.txt")
         try "export:\n 1 2 3 4".write(to: tmp, atomically: true, encoding: .utf8)
         let (code, out) = try run(["format", tmp.path])
         XCTAssertEqual(code, 0)
@@ -38,7 +38,7 @@ final class VunkleCLITests: XCTestCase {
 
     func testDetectGridIfVideoProvided() throws {
         guard !testVideo.isEmpty else { return }
-        let (code, out) = try run(["detect-grid", testVideo, "--emit-vunkle"])
+        let (code, out) = try run(["detect-grid", testVideo, "--emit-revunk"])
         XCTAssertEqual(code, 0)
         XCTAssertTrue(out.lowercased().contains("bpm"))
     }
