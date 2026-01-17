@@ -733,6 +733,37 @@ revunk exists to do for video what "wuncle" did for loops: make re‑oning inten
 
 ---
 
+## Recursive revunk (a core property)
+
+A defining goal of **revunk** is **recursive applicability**:
+
+> **Every revunk output is itself a valid revunk input.**
+
+Any artifact produced by revunk — video, ASCII demo, executable player, or future formats — must be *revunkable again*.
+
+This means:
+- Exports are never dead ends
+- Timing, structure, and intent are preserved
+- A revunk can be re‑revunked indefinitely
+
+Conceptually, revunk should be able to **revunk itself**:
+- a revunk export can be opened
+- edited
+- re‑exported
+- and reopened again
+
+This recursive property is not an accident or a convenience; it is a design constraint.
+
+It is why:
+- text is the source of truth
+- metadata is explicit and inspectable
+- exports remain explainable
+- no hidden state is allowed
+
+revunk is not just an editor — it is a *closure over its own outputs*.
+
+---
+
 ## Status
 
 revunk is an active, working engine with **real exports** and a complete round‑trip pipeline:
