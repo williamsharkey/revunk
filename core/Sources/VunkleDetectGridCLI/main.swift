@@ -16,11 +16,12 @@ let defaultGrid = GridCalibration(x: 0.38, y: 0.04, w: 0.24, h: 0.24)
 struct VunkleDetectGridCLI {
     static func main() async {
         guard CommandLine.arguments.count >= 2 else {
-            fatalError("usage: vunkle-detect-grid video.mp4 [--debug]")
+            fatalError("usage: vunkle-detect-grid video.mp4 [--debug] [--emit-vunkle]")
         }
 
         let videoURL = URL(fileURLWithPath: CommandLine.arguments[1])
         let debug = CommandLine.arguments.contains("--debug")
+        let emit = CommandLine.arguments.contains("--emit-vunkle")
 
         let asset = AVURLAsset(url: videoURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
         let generator = AVAssetImageGenerator(asset: asset)
@@ -32,7 +33,8 @@ struct VunkleDetectGridCLI {
         let step = 0.05
 
         var lastIndex: Int? = nil
-        var beatTimes: [CMTime] = []
+        var absoluteBeat = 0
+        var beatEvents: [(Int, CMTime)] = []
 
         for t in stride(from: 0.0, to: duration, by: step) {
             let time = CMTime(seconds: t, preferredTimescale: 600)
@@ -47,26 +49,62 @@ struct VunkleDetectGridCLI {
             guard maxVal / max(median, 0.001) > 1.8 else { continue }
 
             let index = values.firstIndex(of: maxVal)!
+
+            if let li = lastIndex {
+                if li == 15 && index == 0 { absoluteBeat += 1 }
+                else if index != li { absoluteBeat += 1 }
+            } else {
+                absoluteBeat = 1
+            }
+
             if index != lastIndex {
-                beatTimes.append(time)
+                beatEvents.append((absoluteBeat, time))
                 lastIndex = index
-                if debug, let crop { savePNG(crop, name: "grid-debug-\(beatTimes.count).png") }
+                if debug, let crop { savePNG(crop, name: "grid-debug-\(beatEvents.count).png") }
             }
         }
 
-        guard beatTimes.count >= 8 else {
+        guard beatEvents.count >= 8 else {
             fatalError("not enough beats detected")
         }
 
-        let intervals = zip(beatTimes.dropFirst(), beatTimes).map { $0.0.seconds - $0.1.seconds }
+        let times = beatEvents.map { $0.1.seconds }
+        let intervals = zip(times.dropFirst(), times).map { $0.0 - $0.1 }
         let avgInterval = intervals.reduce(0, +) / Double(intervals.count)
         let bpm = 60.0 / avgInterval
 
         print(String(format: "Estimated BPM: %.3f", bpm))
+
+        let anchors = stride(from: 0, to: beatEvents.count, by: 16).prefix(4).map { beatEvents[$0] }
+
         print("Suggested anchors:")
-        for (i, t) in beatTimes.prefix(4).enumerated() {
-            print("  beat \(1 + i * 16) @ \(String(format: "%.3f", t.seconds))")
+        for (b, t) in anchors {
+            print("  beat \(b) @ \(String(format: "%.3f", t.seconds))")
         }
+
+        if emit {
+            emitVunkle(videoURL: videoURL, bpm: bpm, anchors: anchors)
+        }
+    }
+
+    static func emitVunkle(videoURL: URL, bpm: Double, anchors: [(Int, CMTime)]) {
+        let outURL = videoURL.deletingPathExtension().appendingPathExtension("auto.vunkle.txt")
+        var lines: [String] = []
+        lines.append("video: \(videoURL.lastPathComponent)")
+        lines.append("")
+        lines.append(String(format: "bpm: %.3f", bpm))
+        lines.append("")
+        lines.append("# auto-detected from visual grid")
+        lines.append("anchor:")
+        for (b, t) in anchors {
+            lines.append(String(format: "  %d %.3f", b, t.seconds))
+        }
+        lines.append("")
+        lines.append("export:")
+        lines.append("  1 2 3 4")
+
+        try? lines.joined(separator: "\n").write(to: outURL, atomically: true, encoding: .utf8)
+        print("wrote", outURL.path)
     }
 
     static func sampleGrid(image: CGImage, grid: GridCalibration) -> ([Double]?, CGImage?) {
