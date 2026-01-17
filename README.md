@@ -31,20 +31,20 @@ The design is heavily inspired by early Sonic Foundry ACID (v2–v4), especially
 
 ```
 vunkle/
-├─ core/                 # Swift Package (VunkleCore)
+├─ core/                 # Swift Package (revunkCore)
 │  ├─ Sources/
-│  │  └─ VunkleCore/     # Parsers, solvers, timing, media logic
+│  │  └─ revunkCore/     # Parsers, solvers, timing, media logic
 │  ├─ Sources/
-│  │  └─ VunkleExportCLI/   # vunkle-export (CLI)
+│  │  └─ revunkExportCLI/   # vunkle-export (CLI)
 │  └─ Sources/
-│     └─ VunkleDetectGridCLI/ # vunkle-detect-grid (CLI)
+│     └─ revunkDetectGridCLI/ # vunkle-detect-grid (CLI)
 │
 ├─ ios/                  # iOS app (SwiftUI)
 │
 └─ README.md
 ```
 
-VunkleCore contains all logic that must be correct, testable, and reusable. UI is a thin projection of the text model.
+revunkCore contains all logic that must be correct, testable, and reusable. UI is a thin projection of the text model.
 
 ---
 
@@ -118,11 +118,11 @@ Behavior:
 - Serves a lightweight web app that mirrors the iOS editor
 
 The web UI is a **thin client**:
-- All semantics live in `VunkleCore`
+- All semantics live in `revunkCore`
 - Browser communicates via WebSocket messages
 - Same commands, same state model, same text output
 
-This enables full Vunkle editing on **macOS, Windows, and Linux** with no native UI dependencies.
+This enables full revunk editing on **macOS, Windows, and Linux** with no native UI dependencies.
 
 
 
@@ -258,7 +258,7 @@ Notes:
 - All transforms are explicit and reversible.
 
 
-Vunkle supports **multivunks**: compositions made from multiple already‑vunkled videos.
+revunk supports **multivunks**: compositions made from multiple already‑vunkled videos.
 
 A multivunk treats each source vunkle as a **beat‑aware block** that can be tuned, aligned, and arranged together.
 
@@ -319,7 +319,7 @@ These thumbnails exist only to provide orientation while arranging beats; they a
 
 ## Terminal (TUI) + ASCII video frontend
 
-Vunkle includes an optional **cross‑platform terminal UI (TUI)** that renders video at extremely low resolution using **ASCII / character‑based graphics**, while still using the *exact same backend* as all other frontends.
+revunk includes an optional **cross‑platform terminal UI (TUI)** that renders video at extremely low resolution using **ASCII / character‑based graphics**, while still using the *exact same backend* as all other frontends.
 
 This mode is both practical and aesthetic, inspired by demoscene players and ASCII video art.
 
@@ -414,7 +414,7 @@ vunkle export edit.vunkle.txt --ascii-video
 
 ## Lightweight shader system
 
-Vunkle supports an **optional, lightweight shader system** layered on top of the beat timeline.
+revunk supports an **optional, lightweight shader system** layered on top of the beat timeline.
 
 Shaders are:
 - **Purely visual** (audio is unaffected)
@@ -434,7 +434,7 @@ The goal is not full compositing, but fast, expressive *looks*, similar in spiri
 
 ### Universal shader format
 
-Vunkle uses a **GLSL‑style fragment shader format**, compatible in spirit with ShaderToy‑style sharing sites.
+revunk uses a **GLSL‑style fragment shader format**, compatible in spirit with ShaderToy‑style sharing sites.
 
 Example shader file:
 
@@ -502,7 +502,7 @@ All frontends use the same shader code and parameters.
 
 ## Re‑vunklable exports (configurable embedding & quines)
 
-Every Vunkle export is **metadata‑complete and re‑vunklable**.
+Every revunk export is **metadata‑complete and re‑vunklable**.
 
 This means:
 - **Source media is not embedded** in the export
@@ -517,7 +517,7 @@ Exports remain lightweight while still enabling recovery and remixing.
 
 Each export bundles:
 
-Vunkle supports multiple **source embedding modes**, selectable per export:
+revunk supports multiple **source embedding modes**, selectable per export:
 
 1. **None (default)**
    - Only metadata is embedded
@@ -613,7 +613,7 @@ The exact container format is abstracted by the engine.
 
 When opening an exported artifact:
 
-1. Vunkle reads the embedded metadata vunkle
+1. revunk reads the embedded metadata vunkle
 2. Determines embedding mode(s)
 3. Uses embedded sources and/or source discovery
 4. Restores the project instantly
@@ -622,7 +622,7 @@ When opening an exported artifact:
 
 ### Auto‑vunk compression
 
-Vunkle can automatically compress long recordings into shorter, beat‑faithful edits.
+revunk can automatically compress long recordings into shorter, beat‑faithful edits.
 
 Options include:
 
@@ -661,7 +661,7 @@ An export is not just a render.
 
 It is a **shareable, remixable object**.
 
-Vunkle exports are:
+revunk exports are:
 - playable
 - inspectable
 - recoverable
@@ -669,24 +669,24 @@ Vunkle exports are:
 
 ---
 
-## What Vunkle is NOT
+## What revunk is NOT
 
 - Not a traditional NLE
 - Not a clip-based editor
 - Not a real-time effects tool
 - Not trying to replace a DAW
 
-Vunkle is intentionally narrow.
+revunk is intentionally narrow.
 
 ---
 
 ## Status
 
-Vunkle is an active, working engine with real exports, real tests, and multiple frontends. The core pipeline (parse → solve → render → export → reopen) is implemented and covered by integration tests.
+revunk is an active, working engine with real exports, real tests, and multiple frontends. The core pipeline (parse → solve → render → export → reopen) is implemented and covered by integration tests.
 
 This repository should be treated as:
 - a **format** (the `.vunkle.txt` language)
-- an **engine** (VunkleCore)
+- an **engine** (revunkCore)
 - a **toolchain** (CLI / Web / TUI / iOS / macOS)
 
 Design sections in this README are not aspirational; they describe behavior that either already exists or is actively being implemented.
@@ -698,7 +698,7 @@ Early but real. The core exporter and detector exist; UI is being built directly
 
 ## For future agents
 
-If you are extending Vunkle:
+If you are extending revunk:
 
 - Preserve **one binary** (`vunkle`)
 - Preserve **text-first truth**
