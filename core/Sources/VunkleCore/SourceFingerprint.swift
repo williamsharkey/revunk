@@ -1,6 +1,6 @@
 import Foundation
 import AVFoundation
-import CryptoKit
+
 
 public struct SourceFingerprint: Equatable, Codable {
     public let originalName: String
@@ -18,10 +18,12 @@ public struct SourceFingerprint: Equatable, Codable {
     }
 
     private static func hashPrefix(url: URL, bytes: Int = 1024 * 1024) throws -> String {
-        let fh = try FileHandle(forReadingFrom: url)
-        defer { try? fh.close() }
-        let data = try fh.read(upToCount: bytes) ?? Data()
-        let digest = SHA256.hash(data: data)
-        return digest.compactMap { String(format: "%02x", $0) }.joined().prefix(16).description
+        // Read a small prefix for fast identification (cross-platform)
+        let data = try Data(contentsOf: url, options: [.mappedIfSafe])
+        let slice = data.prefix(bytes)
+        // Cross-platform fast checksum (not cryptographic)
+        var checksum: UInt64 = 0
+        for b in slice { checksum = (checksum &* 1315423911) ^ UInt64(b) }
+        return String(format: "%016llx", checksum)
     }
 }
