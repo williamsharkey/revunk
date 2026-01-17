@@ -2,7 +2,7 @@ import Foundation
 import AVFoundation
 
 
-public struct SourceFingerprint: Equatable, Codable {
+public struct SourceFingerprint: Equatable, Codable, Hashable {
     public let originalName: String
     public let fileSize: UInt64
     public let durationSeconds: Double
