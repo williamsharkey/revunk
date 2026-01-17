@@ -680,6 +680,25 @@ revunk is intentionally narrow.
 
 ---
 
+## Lore
+
+The name **vunkle** (and by extension **revunk**) comes from the Endlesss.fm community.
+
+**"wuncle"** was a term coined by Endlesss.fm designer and user **Noel Leeman** as a playful pun on **"one‑cel"** ("re‑one a loop"). In Endlesss, a loop can easily start on the wrong beat or phase, and collaborators would say a loop needed to be **re‑oned** — aligned so that beat **1** lands correctly.
+
+Over time, *wuncle* became a humorous shorthand for fixing phase, count, or musical alignment — especially when exporting audio from Endlesss and correcting where the loop truly begins.
+
+**vunkle** is a direct extension of that idea: the **V is for video**.
+
+The philosophy carries forward unchanged:
+- find where *one* really is
+- make alignment explicit
+- treat timing as musical truth, not metadata
+
+revunk exists to do for video what "wuncle" did for loops: make re‑oning intentional, explicit, and shareable.
+
+---
+
 ## Status
 
 revunk is an active, working engine with **real exports** and a complete round‑trip pipeline:
