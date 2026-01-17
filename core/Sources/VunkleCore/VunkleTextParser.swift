@@ -26,6 +26,7 @@ public struct VunkleTextFile: Equatable {
     public var video: String?
     public var downbeat: CMTime?
     public var bpm: Double?
+    public var offset: CMTime? // constant nudge applied to all beats
     public var anchors: [BeatAnchor] = []
     public var tempoChanges: [BPMChange] = []
     public var defaultCrossfade: Crossfade?
@@ -60,6 +61,7 @@ public final class VunkleTextParser {
                 case "video": result.video = value
                 case "bpm": result.bpm = Double(value)
                 case "downbeat": result.downbeat = try Self.parseTime(value)
+                case "offset": result.offset = try Self.parseTime(value)
                 default: break
                 }
                 continue

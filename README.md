@@ -682,7 +682,20 @@ revunk is intentionally narrow.
 
 ## Status
 
-revunk is an active, working engine with real exports, real tests, and multiple frontends. The core pipeline (parse → solve → render → export → reopen) is implemented and covered by integration tests.
+revunk is an active, working engine with **real exports** and a complete round‑trip pipeline:
+
+`parse → solve → render → export → reopen`
+
+Implemented today:
+- Beat‑first text format (`.vunkle.txt`)
+- Arbitrary beat sequencing (including reverse)
+- Anchor‑aware timing
+- Constant offset / nudge support
+- Tempo changes
+- Audio crossfades
+- Beat number burn‑in (debug overlay)
+- Metadata sidecars (`.metadata.vunkle.txt`)
+- Fingerprint‑based source rediscovery on reopen
 
 This repository should be treated as:
 - a **format** (the `.vunkle.txt` language)
@@ -691,8 +704,7 @@ This repository should be treated as:
 
 Design sections in this README are not aspirational; they describe behavior that either already exists or is actively being implemented.
 
-
-Early but real. The core exporter and detector exist; UI is being built directly on top of the text model.
+Early but real. The exporter produces real MP4s, and every export can be reopened and remixed from text.
 
 ---
 
