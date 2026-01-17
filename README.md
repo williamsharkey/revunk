@@ -500,7 +500,7 @@ All frontends use the same shader code and parameters.
 
 ---
 
-## Re‑vunklable exports (metadata‑complete, source‑referencing artifacts)
+## Re‑vunklable exports (configurable embedding & quines)
 
 Every Vunkle export is **metadata‑complete and re‑vunklable**.
 
@@ -513,16 +513,36 @@ Exports remain lightweight while still enabling recovery and remixing.
 
 ---
 
-### What is embedded
+### Embedding modes
 
 Each export bundles:
 
-1. **Source references (not media)**
-   - Original file names
-   - File sizes
-   - Content hashes
-   - Expected durations
-   - Any offsets or trims used
+Vunkle supports multiple **source embedding modes**, selectable per export:
+
+1. **None (default)**
+   - Only metadata is embedded
+   - Source discovery is used on reopen
+
+2. **Thumbnails only**
+   - Beat‑synchronous low‑resolution frames
+   - Optimized for remixing and browsing
+
+3. **Low‑resolution video**
+   - Downsampled, time‑aligned video
+   - Flows back into editing stream
+
+4. **Full‑quality video**
+   - Exact source copy embedded
+   - Maximum portability
+
+Audio is always embedded at **full quality**.
+
+Embedded or referenced sources always include:
+- Original file names
+- File sizes
+- Content hashes
+- Expected durations
+- Any offsets or trims used
 
 2. **Project vunkle metadata**
    - The exact `.vunkle.txt` used
@@ -563,17 +583,24 @@ This file is not meant for manual editing, but it is **plain text and inspectabl
 
 ---
 
-### Container strategy
+### Container & quine strategy
 
-Exports use a **container strategy** appropriate to the output format:
+Exports use a **container and quine strategy** appropriate to the output format:
 
 - **MP4 / video outputs**
   - Embedded assets stored as additional tracks or metadata atoms
   - Metadata vunkle stored as a text atom
 
 - **ASCII demo exports**
-  - Embedded sources appended after the player
-  - Self‑extracting at runtime if needed
+  - The output is itself the `vunkle` executable
+  - When run normally: plays ASCII video + audio
+  - When run with `--remix`: opens the embedded project for editing
+  - Sources may be embedded in any supported mode (including ASCII)
+
+- **Executable quines**
+  - Certain export formats may be true quines
+  - Renaming the file preserves remixability
+  - `vunkle --help` reports quine support on the current platform
 
 - **Web / bundle exports**
   - Directory or archive layout
@@ -582,14 +609,47 @@ The exact container format is abstracted by the engine.
 
 ---
 
-### Reopening and remixing
+### Reopening, remixing, and auto‑vunking
 
 When opening an exported artifact:
 
-1. Vunkle scans for embedded sources
-2. Extracts them to a temporary workspace
-3. Loads the embedded metadata vunkle
+1. Vunkle reads the embedded metadata vunkle
+2. Determines embedding mode(s)
+3. Uses embedded sources and/or source discovery
 4. Restores the project instantly
+
+---
+
+### Auto‑vunk compression
+
+Vunkle can automatically compress long recordings into shorter, beat‑faithful edits.
+
+Options include:
+
+- Source start / end crop (approximate)
+- Target duration (e.g. 3 minutes)
+- Minimum stride length (in beats)
+
+The engine generates an **auto‑vunk script** that skips through the source while preserving beat structure.
+
+Example (conceptual):
+
+```text
+# auto-generated
+export:
+  1
+  2 +4
+  3 +8
+  4 +12
+```
+
+This is intended for:
+- Long jams
+- Platform upload limits
+- Rapid sharing
+
+The generated script is fully editable.
+
 
 No manual relinking is required.
 
