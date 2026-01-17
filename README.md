@@ -100,6 +100,9 @@ This means the musical downbeat occurs later in the video. Earlier beats exist a
 
 ## CLI tools
 
+All command‑line tools are designed to run on **macOS, Linux, and Windows** using the same core logic as the iOS app. The iOS app is a thin frontend over this core; it does not introduce new semantics.
+
+
 ### `vunkle-export`
 
 Slices and renders a new video from a `.vunkle.txt` file.
@@ -117,6 +120,33 @@ Output:
 ```
 <video>.vunkle.out.mp4
 ```
+
+---
+
+### `vunkle-format`
+
+Formats a `.vunkle.txt` file for **human readability** while preserving meaning.
+
+```bash
+vunkle-format edit.vunkle.txt            # print to stdout
+vunkle-format edit.vunkle.txt -i         # format in place
+```
+
+Features:
+- Column‑aligned numbers (including negatives and zero‑padding)
+- Stable ordering of sections
+- Preserves comments and blank lines
+- No semantic changes
+
+Example alignment:
+
+```text
+export:
+  -16  -8  -4  -2  -1   0   1   2
+   10  11  12  13  14  15  16  17
+```
+
+This formatter is intended to be used frequently, like `gofmt` or `rustfmt`.
 
 ---
 
