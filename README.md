@@ -682,11 +682,32 @@ Vunkle is intentionally narrow.
 
 ## Status
 
+Vunkle is an active, working engine with real exports, real tests, and multiple frontends. The core pipeline (parse → solve → render → export → reopen) is implemented and covered by integration tests.
+
+This repository should be treated as:
+- a **format** (the `.vunkle.txt` language)
+- an **engine** (VunkleCore)
+- a **toolchain** (CLI / Web / TUI / iOS / macOS)
+
+Design sections in this README are not aspirational; they describe behavior that either already exists or is actively being implemented.
+
+
 Early but real. The core exporter and detector exist; UI is being built directly on top of the text model.
 
 ---
 
 ## For future agents
+
+If you are extending Vunkle:
+
+- Preserve **one binary** (`vunkle`)
+- Preserve **text-first truth**
+- Do not duplicate semantics in frontends
+- Keep exports re‑vunklable
+- Prefer adding new output modes over new internal state
+
+If a feature cannot round‑trip through text, metadata, and export, it is likely wrong.
+
 
 - Prefer boring, explicit solutions
 - Do not hide state in UI
