@@ -152,6 +152,63 @@ This walkthrough exists to build confidence, not to hide complexity.
 
 ---
 
+## Multivunks (composing vunkles)
+
+Vunkle supports **multivunks**: compositions made from multiple already‑vunkled videos.
+
+A multivunk treats each source vunkle as a **beat‑aware block** that can be tuned, aligned, and arranged together.
+
+### Tempo relationship modes
+
+Each source vunkle can operate in one of these modes:
+
+- **Follow source**: keep the original vunkle’s BPM and beat timing.
+- **Follow master**: conform to a designated master vunkle’s BPM.
+- **Fixed output BPM**: all sources conform to a specified output BPM.
+- **Timeline BPM changes**: explicit BPM changes at given beats in the multivunk timeline.
+
+All modes are explicit and text‑representable.
+
+### Time and pitch handling
+
+When conforming tempos, a source vunkle can choose:
+
+- **Repitch only**: change playback speed with no time‑stretch algorithm.
+- **Time/pitch stretch**: use a selected stretch algorithm with controls for:
+  - semitone offset (±)
+  - cent offset (±)
+
+These choices are per‑source and reversible.
+
+### Editing performance
+
+To keep editing lightweight:
+
+- High‑quality audio/video processing happens **only at export**.
+- During editing, sources use:
+  - cached audio previews
+  - low‑resolution visual thumbnails
+
+Once a time‑stretch or repitch mode is chosen, **smart caching and preloading** ensure blocks can be assembled and auditioned with no lag.
+
+### Beat‑synchronous thumbnails
+
+Visual editing uses beat‑synchronous thumbnails instead of full video:
+
+- Thumbnails are sampled exactly on beat boundaries.
+- Typical density: **4 thumbnails per beat**.
+- Resolution is intentionally tiny:
+  - 1/8, 1/16, or 1/32 of source resolution
+- Thumbnails may use aesthetic reduced‑palette formats:
+  - 2‑tone, 4‑tone, or 16‑tone
+  - dithered for character
+
+For efficiency, thumbnails may be packed into **sprite sheets** instead of individual files.
+
+These thumbnails exist only to provide orientation while arranging beats; they are not previews of final quality.
+
+---
+
 ## What Vunkle is NOT
 
 - Not a traditional NLE
