@@ -16,12 +16,14 @@ let defaultGrid = GridCalibration(x: 0.38, y: 0.04, w: 0.24, h: 0.24)
 struct VunkleDetectGridCLI {
     static func main() async {
         guard CommandLine.arguments.count >= 2 else {
-            fatalError("usage: vunkle-detect-grid video.mp4 [--debug] [--emit-vunkle]")
+            fatalError("usage: vunkle-detect-grid video.mp4 [--debug] [--emit-vunkle] [--grid x y w h]")
         }
 
         let videoURL = URL(fileURLWithPath: CommandLine.arguments[1])
         let debug = CommandLine.arguments.contains("--debug")
         let emit = CommandLine.arguments.contains("--emit-vunkle")
+
+        let grid = parseGridOverride() ?? defaultGrid
 
         let asset = AVURLAsset(url: videoURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
         let generator = AVAssetImageGenerator(asset: asset)
@@ -40,7 +42,7 @@ struct VunkleDetectGridCLI {
             let time = CMTime(seconds: t, preferredTimescale: 600)
             guard let image = try? generator.copyCGImage(at: time, actualTime: nil) else { continue }
 
-            let (values, crop) = sampleGrid(image: image, grid: defaultGrid)
+            let (values, crop) = sampleGrid(image: image, grid: grid)
             guard let values else { continue }
 
             let sorted = values.sorted()
@@ -83,16 +85,34 @@ struct VunkleDetectGridCLI {
         }
 
         if emit {
-            emitVunkle(videoURL: videoURL, bpm: bpm, anchors: anchors)
+            emitVunkle(videoURL: videoURL, bpm: bpm, anchors: anchors, grid: grid)
         }
     }
 
-    static func emitVunkle(videoURL: URL, bpm: Double, anchors: [(Int, CMTime)]) {
+    static func parseGridOverride() -> GridCalibration? {
+        guard let i = CommandLine.arguments.firstIndex(of: "--grid"),
+              CommandLine.arguments.count >= i + 5,
+              let x = Double(CommandLine.arguments[i+1]),
+              let y = Double(CommandLine.arguments[i+2]),
+              let w = Double(CommandLine.arguments[i+3]),
+              let h = Double(CommandLine.arguments[i+4])
+        else { return nil }
+        return GridCalibration(x: x, y: y, w: w, h: h)
+    }
+
+    static func emitVunkle(videoURL: URL, bpm: Double, anchors: [(Int, CMTime)], grid: GridCalibration) {
         let outURL = videoURL.deletingPathExtension().appendingPathExtension("auto.vunkle.txt")
         var lines: [String] = []
         lines.append("video: \(videoURL.lastPathComponent)")
         lines.append("")
         lines.append(String(format: "bpm: %.3f", bpm))
+        lines.append("")
+        lines.append("# visual grid calibration")
+        lines.append("grid:")
+        lines.append(String(format: "  x %.4f", grid.x))
+        lines.append(String(format: "  y %.4f", grid.y))
+        lines.append(String(format: "  w %.4f", grid.w))
+        lines.append(String(format: "  h %.4f", grid.h))
         lines.append("")
         lines.append("# auto-detected from visual grid")
         lines.append("anchor:")
