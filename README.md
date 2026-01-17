@@ -17,7 +17,7 @@ The truth of an edit always exists in plain text.
 ## Core principles
 
 - Beat-first: you move beats, not pixels
-- Text-first: every edit round-trips through `.vunkle.txt`
+- Text-first: every edit round-trips through `.revunk.txt`
 - Lightweight editing: no re-encoding during edit
 - Export-only quality: quality matters only at final render
 - Musically honest: phase, tempo, and count are explicit
@@ -30,14 +30,14 @@ The design is heavily inspired by early Sonic Foundry ACID (v2–v4), especially
 ## Repository layout
 
 ```
-vunkle/
+revunk/
 ├─ core/                 # Swift Package (revunkCore)
 │  ├─ Sources/
 │  │  └─ revunkCore/     # Parsers, solvers, timing, media logic
 │  ├─ Sources/
-│  │  └─ revunkExportCLI/   # vunkle-export (CLI)
+│  │  └─ revunkExportCLI/   # revunk-export (CLI)
 │  └─ Sources/
-│     └─ revunkDetectGridCLI/ # vunkle-detect-grid (CLI)
+│     └─ revunkDetectGridCLI/ # revunk-detect-grid (CLI)
 │
 ├─ ios/                  # iOS app (SwiftUI)
 │
@@ -48,7 +48,7 @@ revunkCore contains all logic that must be correct, testable, and reusable. UI i
 
 ---
 
-## The `.vunkle.txt` file format
+## The `.revunk.txt` file format
 
 Plain text. Order-insensitive. Human-editable. Diff-friendly.
 
@@ -98,17 +98,51 @@ This means the musical downbeat occurs later in the video. Earlier beats exist a
 
 ---
 
-## CLI tools
+## CLI design: one binary
 
-### Web UI (WebSocket frontend)
+revunk intentionally ships as **one beautiful monolith**.
 
-All CLI tools can optionally expose a **WebSocket-driven web UI** that mirrors the iOS frontend.
+There is a single executable:
+
+```bash
+revunk
+```
+
+All functionality is accessed through **subcommands and flags**, not separate binaries.
+
+This keeps the mental model simple, avoids semantic drift, and guarantees that every mode of operation uses the exact same engine and text model.
+
+### Examples
+
+```bash
+revunk export edit.revunk.txt
+revunk open output.revunk.out.mp4
+revunk format edit.revunk.txt
+revunk detect-grid video.mp4
+revunk play edit.revunk.txt
+```
+
+Flags modify behavior rather than selecting a different tool:
+
+```bash
+revunk export edit.revunk.txt --ascii
+revunk export edit.revunk.txt --ascii-player
+revunk export edit.revunk.txt --embed thumbnails
+```
+
+The only exception to this rule is **exported artifacts** that are themselves executable (for example, demoscene-style ASCII media players). Those are *outputs*, not tools.
+
+---
+
+## Web UI (WebSocket frontend)
+
+All revunk commands can optionally expose a **WebSocket-driven web UI** that mirrors the iOS frontend.
 
 Starting any CLI with `--web` launches a local server and prints (or opens) a browser link:
 
 ```bash
-vunkle-export edit.vunkle.txt --web
-vunkle-format edit.vunkle.txt --web
+revunk-export edit.revunk.txt --web
+revunk-format edit.revunk.txt --web
 ```
 
 Behavior:
@@ -129,12 +163,12 @@ This enables full revunk editing on **macOS, Windows, and Linux** with no native
 All command‑line tools are designed to run on **macOS, Linux, and Windows** using the same core logic as the iOS app. The iOS app and the Web UI are thin frontends over this core; neither introduces new semantics.
 
 
-### `vunkle-export`
+### `revunk-export`
 
-Slices and renders a new video from a `.vunkle.txt` file.
+Slices and renders a new video from a `.revunk.txt` file.
 
 ```bash
-swift run vunkle-export edit.vunkle.txt
+swift run revunk-export edit.revunk.txt
 ```
 
 - Uses AVFoundation lazily
@@ -144,18 +178,18 @@ swift run vunkle-export edit.vunkle.txt
 
 Output:
 ```
-<video>.vunkle.out.mp4
+<video>.revunk.out.mp4
 ```
 
 ---
 
-### `vunkle-format`
+### `revunk-format`
 
-Formats a `.vunkle.txt` file for **human readability** while preserving meaning.
+Formats a `.revunk.txt` file for **human readability** while preserving meaning.
 
 ```bash
-vunkle-format edit.vunkle.txt            # print to stdout
-vunkle-format edit.vunkle.txt -i         # format in place
+revunk-format edit.revunk.txt            # print to stdout
+revunk-format edit.revunk.txt -i         # format in place
 ```
 
 Features:
@@ -176,19 +210,19 @@ This formatter is intended to be used frequently, like `gofmt` or `rustfmt`.
 
 ---
 
-### `vunkle-detect-grid`
+### `revunk-detect-grid`
 
 Detects a 4×4 visual beat grid embedded in a video (e.g. Midigarden screen recordings).
 
 ```bash
-swift run vunkle-detect-grid video.mp4 --emit-vunkle --debug
+swift run revunk-detect-grid video.mp4 --emit-revunk --debug
 ```
 
 Produces:
 - Estimated BPM
 - Suggested anchors
 - Debug PNGs showing grid alignment
-- Optional `.vunkle.txt` skeleton
+- Optional `.revunk.txt` skeleton
 
 Detection is opportunistic and gap-tolerant. No automation is forced.
 
@@ -208,28 +242,28 @@ This walkthrough exists to build confidence, not to hide complexity.
 
 ---
 
-## Multivunks (composing vunkles)
+## Multivunks (composing revunks)
 
 ### Multivunk text schema (draft)
 
-Multivunks extend the text‑first model. A multivunk file references multiple vunkles and defines how their beat clocks relate.
+Multivunks extend the text‑first model. A multivunk file references multiple revunks and defines how their beat clocks relate.
 
 ```text
-# multivunk.vunkle.txt
+# multivunk.revunk.txt
 
 output:
   bpm: 120
 
 sources:
   - id: drums
-    file: drums.vunkle.txt
+    file: drums.revunk.txt
     mode: follow-master        # follow-master | follow-source | fixed-bpm
     pitch:
       semitones: 0
       cents: 0
 
   - id: bass
-    file: bass.vunkle.txt
+    file: bass.revunk.txt
     mode: fixed-bpm
     bpm: 120
     pitch:
@@ -237,7 +271,7 @@ sources:
       cents: 0
 
   - id: pads
-    file: pads.vunkle.txt
+    file: pads.revunk.txt
     mode: follow-source
 
 # optional timeline tempo changes
@@ -258,16 +292,16 @@ Notes:
 - All transforms are explicit and reversible.
 
 
-revunk supports **multivunks**: compositions made from multiple already‑vunkled videos.
+revunk supports **multivunks**: compositions made from multiple already‑revunkd videos.
 
-A multivunk treats each source vunkle as a **beat‑aware block** that can be tuned, aligned, and arranged together.
+A multivunk treats each source revunk as a **beat‑aware block** that can be tuned, aligned, and arranged together.
 
 ### Tempo relationship modes
 
-Each source vunkle can operate in one of these modes:
+Each source revunk can operate in one of these modes:
 
-- **Follow source**: keep the original vunkle’s BPM and beat timing.
-- **Follow master**: conform to a designated master vunkle’s BPM.
+- **Follow source**: keep the original revunk’s BPM and beat timing.
+- **Follow master**: conform to a designated master revunk’s BPM.
 - **Fixed output BPM**: all sources conform to a specified output BPM.
 - **Timeline BPM changes**: explicit BPM changes at given beats in the multivunk timeline.
 
@@ -275,7 +309,7 @@ All modes are explicit and text‑representable.
 
 ### Time and pitch handling
 
-When conforming tempos, a source vunkle can choose:
+When conforming tempos, a source revunk can choose:
 
 - **Repitch only**: change playback speed with no time‑stretch algorithm.
 - **Time/pitch stretch**: use a selected stretch algorithm with controls for:
@@ -325,7 +359,7 @@ This mode is both practical and aesthetic, inspired by demoscene players and ASC
 
 ### Goals
 
-- One binary: `vunkle`
+- One binary: `revunk`
 - Same engine, different presentation
 - No special casing in core logic
 - Beautiful constraints‑driven visuals
@@ -405,9 +439,9 @@ This makes the ASCII mode a *first‑class output format*, not a gimmick.
 ### CLI usage (examples)
 
 ```bash
-vunkle play edit.vunkle.txt --tui
-vunkle export edit.vunkle.txt --ascii
-vunkle export edit.vunkle.txt --ascii-video
+revunk play edit.revunk.txt --tui
+revunk export edit.revunk.txt --ascii
+revunk export edit.revunk.txt --ascii-video
 ```
 
 ---
@@ -439,7 +473,7 @@ revunk uses a **GLSL‑style fragment shader format**, compatible in spirit with
 Example shader file:
 
 ```glsl
-// glitch-wobble.vunkle.glsl
+// glitch-wobble.revunk.glsl
 
 uniform float time;
 uniform vec2 resolution;
@@ -452,13 +486,13 @@ void main() {
 }
 ```
 
-### Referencing shaders in `.vunkle.txt`
+### Referencing shaders in `.revunk.txt`
 
 Shaders are referenced by path and optionally parameterized:
 
 ```text
 shader:
-  file: shaders/glitch-wobble.vunkle.glsl
+  file: shaders/glitch-wobble.revunk.glsl
   apply: beats 33..64
   params:
     intensity 0.8
@@ -544,25 +578,25 @@ Embedded or referenced sources always include:
 - Expected durations
 - Any offsets or trims used
 
-2. **Project vunkle metadata**
-   - The exact `.vunkle.txt` used
+2. **Project revunk metadata**
+   - The exact `.revunk.txt` used
    - Derived settings (BPM, anchors, grid calibration)
    - Multivunk relationships (if any)
 
-3. **Export descriptor (metadata vunkle)**
-   - Describes how this output should be re‑vunkled
+3. **Export descriptor (metadata revunk)**
+   - Describes how this output should be re‑revunkd
    - Allows instant reopening with correct defaults
 
 ---
 
-### Metadata vunkle (source‑referencing)
+### Metadata revunk (source‑referencing)
 
-Every export contains an embedded **metadata vunkle**, conceptually equivalent to:
+Every export contains an embedded **metadata revunk**, conceptually equivalent to:
 
 ```text
-# export-metadata.vunkle.txt
+# export-metadata.revunk.txt
 
-exported-from: vunkle
+exported-from: revunk
 engine-version: 0.x
 
 reopen:
@@ -589,10 +623,10 @@ Exports use a **container and quine strategy** appropriate to the output format:
 
 - **MP4 / video outputs**
   - Embedded assets stored as additional tracks or metadata atoms
-  - Metadata vunkle stored as a text atom
+  - Metadata revunk stored as a text atom
 
 - **ASCII demo exports**
-  - The output is itself the `vunkle` executable
+  - The output is itself the `revunk` executable
   - When run normally: plays ASCII video + audio
   - When run with `--remix`: opens the embedded project for editing
   - Sources may be embedded in any supported mode (including ASCII)
@@ -600,7 +634,7 @@ Exports use a **container and quine strategy** appropriate to the output format:
 - **Executable quines**
   - Certain export formats may be true quines
   - Renaming the file preserves remixability
-  - `vunkle --help` reports quine support on the current platform
+  - `revunk --help` reports quine support on the current platform
 
 - **Web / bundle exports**
   - Directory or archive layout
@@ -613,7 +647,7 @@ The exact container format is abstracted by the engine.
 
 When opening an exported artifact:
 
-1. revunk reads the embedded metadata vunkle
+1. revunk reads the embedded metadata revunk
 2. Determines embedding mode(s)
 3. Uses embedded sources and/or source discovery
 4. Restores the project instantly
@@ -682,13 +716,13 @@ revunk is intentionally narrow.
 
 ## Lore
 
-The name **vunkle** (and by extension **revunk**) comes from the Endlesss.fm community.
+The name **revunk** (and by extension **revunk**) comes from the Endlesss.fm community.
 
 **"wuncle"** was a term coined by Endlesss.fm designer and user **Noel Leeman** as a playful pun on **"one‑cel"** ("re‑one a loop"). In Endlesss, a loop can easily start on the wrong beat or phase, and collaborators would say a loop needed to be **re‑oned** — aligned so that beat **1** lands correctly.
 
 Over time, *wuncle* became a humorous shorthand for fixing phase, count, or musical alignment — especially when exporting audio from Endlesss and correcting where the loop truly begins.
 
-**vunkle** is a direct extension of that idea: the **V is for video**.
+**revunk** is a direct extension of that idea: the **V is for video**.
 
 The philosophy carries forward unchanged:
 - find where *one* really is
@@ -706,18 +740,18 @@ revunk is an active, working engine with **real exports** and a complete round�
 `parse → solve → render → export → reopen`
 
 Implemented today:
-- Beat‑first text format (`.vunkle.txt`)
+- Beat‑first text format (`.revunk.txt`)
 - Arbitrary beat sequencing (including reverse)
 - Anchor‑aware timing
 - Constant offset / nudge support
 - Tempo changes
 - Audio crossfades
 - Beat number burn‑in (debug overlay)
-- Metadata sidecars (`.metadata.vunkle.txt`)
+- Metadata sidecars (`.metadata.revunk.txt`)
 - Fingerprint‑based source rediscovery on reopen
 
 This repository should be treated as:
-- a **format** (the `.vunkle.txt` language)
+- a **format** (the `.revunk.txt` language)
 - an **engine** (revunkCore)
 - a **toolchain** (CLI / Web / TUI / iOS / macOS)
 
@@ -731,7 +765,7 @@ Early but real. The exporter produces real MP4s, and every export can be reopene
 
 If you are extending revunk:
 
-- Preserve **one binary** (`vunkle`)
+- Preserve **one binary** (`revunk`)
 - Preserve **text-first truth**
 - Do not duplicate semantics in frontends
 - Keep exports re‑vunklable
