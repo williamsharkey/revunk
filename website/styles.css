@@ -1,0 +1,96 @@
+@font-face {
+  font-family: "Suisse";
+  src: local("Helvetica Neue"), local("Arial");
+}
+
+:root {
+  --bg: #f6f6f4;
+  --ink: #0e0e0e;
+  --muted: #6f6f6f;
+  --accent: #111;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Suisse, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.wrap {
+  max-width: 900px;
+  padding: 4rem 2rem 6rem;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 8vw, 6rem);
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.tagline {
+  font-size: 0.9rem;
+  text-transform: lowercase;
+  letter-spacing: 0.12em;
+  margin-top: 0.5rem;
+  color: var(--muted);
+}
+
+.lede {
+  font-size: 1.4rem;
+  margin-top: 2rem;
+  line-height: 1.4;
+}
+
+.block {
+  margin-top: 5rem;
+}
+
+.block h2 {
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.block p {
+  max-width: 600px;
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.block ul {
+  list-style: none;
+  padding: 0;
+}
+
+.block li {
+  margin-bottom: 0.5rem;
+}
+
+pre {
+  background: #fff;
+  padding: 1.2rem;
+  overflow-x: auto;
+  border-radius: 6px;
+  margin-top: 1.5rem;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+}
+
+.footer {
+  margin-top: 8rem;
+  max-width: 600px;
+}
+
+.quiet {
+  color: var(--muted);
+  font-size: 0.85rem;
+}

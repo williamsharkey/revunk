@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>revunk — beat‑first video remix</title>
+  <meta name="description" content="revunk is a beat‑first, text‑first video remix engine. Re‑one video. Re‑revunk endlessly." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>revunk</h1>
+      <p class="tagline">re‑video‑wuncle</p>
+      <p class="lede">
+        A beat‑first, text‑first video remix engine.<br />
+        You don’t edit clips. You edit <em>beats</em>.
+      </p>
+    </section>
+
+    <section class="block">
+      <p>
+        revunk treats video the way musicians treat loops.
+        Find where <strong>one</strong> really is. Make it explicit.
+        Rearrange beats as numbers. Export once.
+      </p>
+    </section>
+
+    <section class="block">
+      <h2>The core idea</h2>
+      <ul>
+        <li>Find the beat clock</li>
+        <li>Decide where beat <strong>1</strong> is</li>
+        <li>Arrange beats as text</li>
+        <li>Export at full quality</li>
+      </ul>
+    </section>
+
+    <section class="block">
+      <h2>Recursive by design</h2>
+      <p>
+        Every revunk output is a valid revunk input.
+        Exports are not dead ends — they can be reopened,
+        re‑edited, and re‑revunked indefinitely.
+      </p>
+      <p class="quiet">
+        revunk is closed over its own outputs.
+      </p>
+    </section>
+
+    <section class="block">
+      <h2>Text is the truth</h2>
+      <p>
+        The entire edit exists in plain text.
+        No hidden state. No opaque timelines.
+        If it can’t round‑trip through text, it doesn’t belong.
+      </p>
+      <pre><code>video: secret-world.mp4
+downbeat: 0
+bpm: 120
+
+export:
+  1x2 2x3 3 4
+  4x3 3x2 2x1</code></pre>
+    </section>
+
+    <section class="block">
+      <h2>What revunk is not</h2>
+      <ul>
+        <li>Not a traditional NLE</li>
+        <li>Not clip‑based</li>
+        <li>Not a DAW replacement</li>
+        <li>Not magic automation</li>
+      </ul>
+    </section>
+
+    <section class="block">
+      <h2>Status</h2>
+      <p>
+        revunk is real and actively being built.
+        The core pipeline exists: parse → solve → render → export → reopen.
+      </p>
+    </section>
+
+    <footer class="footer">
+      <p>
+        revunk comes from <em>wuncle</em> — a term coined in the Endlesss.fm community
+        for re‑oning a loop when the beat starts in the wrong place.
+      </p>
+      <p class="quiet">© revunk</p>
+    </footer>
+  </main>
+</body>
+</html>
