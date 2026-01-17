@@ -498,6 +498,115 @@ All frontends use the same shader code and parameters.
 
 ---
 
+---
+
+## Self-contained exports (re‑vunklable artifacts)
+
+Every Vunkle export is **self‑contained**.
+
+This means:
+- Source media is embedded inside the export
+- A full project description is embedded as metadata
+- Any exported artifact can be reopened and remixed without external files
+
+Losing source files or remixing someone else’s work should never block re‑editing.
+
+---
+
+### What is embedded
+
+Each export bundles:
+
+1. **Original source media**
+   - Video files
+   - Audio tracks
+   - Shader source files
+
+2. **Project vunkle metadata**
+   - The exact `.vunkle.txt` used
+   - Derived settings (BPM, anchors, grid calibration)
+   - Multivunk relationships (if any)
+
+3. **Export descriptor (metadata vunkle)**
+   - Describes how this output should be re‑vunkled
+   - Allows instant reopening with correct defaults
+
+---
+
+### Metadata vunkle
+
+Every export contains an embedded **metadata vunkle**, conceptually equivalent to:
+
+```text
+# export-metadata.vunkle.txt
+
+exported-from: vunkle
+engine-version: 0.x
+
+reopen:
+  mode: edit
+  timeline: main
+
+sources:
+  - embedded: true
+    original-name: secret-world.mp4
+
+suggested-actions:
+  - remix
+  - retime
+  - restyle
+```
+
+This file is not meant for manual editing, but it is **plain text and inspectable**.
+
+---
+
+### Container strategy
+
+Exports use a **container strategy** appropriate to the output format:
+
+- **MP4 / video outputs**
+  - Embedded assets stored as additional tracks or metadata atoms
+  - Metadata vunkle stored as a text atom
+
+- **ASCII demo exports**
+  - Embedded sources appended after the player
+  - Self‑extracting at runtime if needed
+
+- **Web / bundle exports**
+  - Directory or archive layout
+
+The exact container format is abstracted by the engine.
+
+---
+
+### Reopening and remixing
+
+When opening an exported artifact:
+
+1. Vunkle scans for embedded sources
+2. Extracts them to a temporary workspace
+3. Loads the embedded metadata vunkle
+4. Restores the project instantly
+
+No manual relinking is required.
+
+---
+
+### Philosophy
+
+An export is not just a render.
+
+It is a **shareable, remixable object**.
+
+Vunkle exports are:
+- playable
+- inspectable
+- recoverable
+- remixable
+
+---
+
 ## What Vunkle is NOT
 
 - Not a traditional NLE
