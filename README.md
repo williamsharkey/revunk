@@ -313,6 +313,94 @@ These thumbnails exist only to provide orientation while arranging beats; they a
 
 ---
 
+---
+
+## Lightweight shader system
+
+Vunkle supports an **optional, lightweight shader system** layered on top of the beat timeline.
+
+Shaders are:
+- **Purely visual** (audio is unaffected)
+- **Optional** (default is no shader)
+- **Applied per‑beat, per‑range, or globally**
+- **Text‑addressable and shareable**
+
+The goal is not full compositing, but fast, expressive *looks*, similar in spirit to apps like **Hyperspektiv**.
+
+### Shader philosophy
+
+- Shaders are small, readable, and copy‑pasteable
+- They live in **plain text files**
+- They can be shared on the web
+- They are deterministic and side‑effect free
+- They never affect timing or beat math
+
+### Universal shader format
+
+Vunkle uses a **GLSL‑style fragment shader format**, compatible in spirit with ShaderToy‑style sharing sites.
+
+Example shader file:
+
+```glsl
+// glitch-wobble.vunkle.glsl
+
+uniform float time;
+uniform vec2 resolution;
+uniform sampler2D inputImage;
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / resolution;
+    uv.x += sin(uv.y * 40.0 + time) * 0.01;
+    gl_FragColor = texture2D(inputImage, uv);
+}
+```
+
+### Referencing shaders in `.vunkle.txt`
+
+Shaders are referenced by path and optionally parameterized:
+
+```text
+shader:
+  file: shaders/glitch-wobble.vunkle.glsl
+  apply: beats 33..64
+  params:
+    intensity 0.8
+```
+
+Rules:
+- If no `shader:` block exists, video is unmodified
+- Shaders can be stacked (order is explicit)
+- Shaders never affect export timing
+
+### Timeline interaction
+
+- Shaders behave like **visual modifiers**, not clips
+- They can be copied and pasted like beats
+- They snap to beat ranges
+- They are previewed at low resolution during editing
+- Full quality is applied only at export
+
+### Performance strategy
+
+- Editing uses:
+  - low‑resolution frames
+  - cached shader outputs
+- Export renders:
+  - full resolution
+  - full precision
+
+This keeps the editor responsive while allowing rich looks.
+
+### Frontend support
+
+- CLI: shaders are declared and referenced textually
+- Web: shaders editable in a text panel
+- iOS/macOS: shader picker + live preview
+
+All frontends use the same shader code and parameters.
+
+---
+
 ## What Vunkle is NOT
 
 - Not a traditional NLE
