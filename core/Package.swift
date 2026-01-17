@@ -6,19 +6,23 @@ import PackageDescription
 let package = Package(
     name: "VunkleCore",
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
             name: "VunkleCore",
             targets: ["VunkleCore"]),
+        .executable(
+            name: "revunk",
+            targets: ["revunk"]),
     ],
-    targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
+targets: [
         .target(
             name: "VunkleCore"),
-.testTarget(
-             name: "VunkleCoreTests",
-             dependencies: ["VunkleCore"]
-         ),
+        .executableTarget(
+            name: "revunk",
+            dependencies: ["VunkleCore"]
+        ),
+        .testTarget(
+            name: "VunkleCoreTests",
+            dependencies: ["VunkleCore"]
+        ),
     ]
 )
