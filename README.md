@@ -100,7 +100,33 @@ This means the musical downbeat occurs later in the video. Earlier beats exist a
 
 ## CLI tools
 
-All command‑line tools are designed to run on **macOS, Linux, and Windows** using the same core logic as the iOS app. The iOS app is a thin frontend over this core; it does not introduce new semantics.
+### Web UI (WebSocket frontend)
+
+All CLI tools can optionally expose a **WebSocket-driven web UI** that mirrors the iOS frontend.
+
+Starting any CLI with `--web` launches a local server and prints (or opens) a browser link:
+
+```bash
+vunkle-export edit.vunkle.txt --web
+vunkle-format edit.vunkle.txt --web
+```
+
+Behavior:
+- Starts a local HTTP + WebSocket server
+- Prints a URL to the terminal
+- Optionally auto-opens the browser
+- Serves a lightweight web app that mirrors the iOS editor
+
+The web UI is a **thin client**:
+- All semantics live in `VunkleCore`
+- Browser communicates via WebSocket messages
+- Same commands, same state model, same text output
+
+This enables full Vunkle editing on **macOS, Windows, and Linux** with no native UI dependencies.
+
+
+
+All command‑line tools are designed to run on **macOS, Linux, and Windows** using the same core logic as the iOS app. The iOS app and the Web UI are thin frontends over this core; neither introduces new semantics.
 
 
 ### `vunkle-export`
