@@ -1,6 +1,6 @@
-# Vunkle
+# revunk
 
-Vunkle is a beat-first video editor.
+revunk is a beat-first video editor.
 
 Instead of editing frames or clips, you edit **beats**. Beats are numbered, reorderable, text-addressable, and musically meaningful. Video and audio are treated as continuous media that are sliced by time only at export.
 
