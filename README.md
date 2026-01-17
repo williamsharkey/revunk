@@ -315,6 +315,103 @@ These thumbnails exist only to provide orientation while arranging beats; they a
 
 ---
 
+---
+
+## Terminal (TUI) + ASCII video frontend
+
+Vunkle includes an optional **cross‑platform terminal UI (TUI)** that renders video at extremely low resolution using **ASCII / character‑based graphics**, while still using the *exact same backend* as all other frontends.
+
+This mode is both practical and aesthetic, inspired by demoscene players and ASCII video art.
+
+### Goals
+
+- One binary: `vunkle`
+- Same engine, different presentation
+- No special casing in core logic
+- Beautiful constraints‑driven visuals
+
+---
+
+### ASCII render modes
+
+The TUI supports multiple render modes:
+
+- **Live terminal playback**
+  - Real‑time ASCII video in terminal
+  - Synchronized audio playback
+  - Keyboard controls (play / pause / seek)
+
+- **ASCII demo export**
+  - Self‑contained terminal player (text + audio)
+  - Intended to be run directly in a terminal
+  - Inspired by demoscene intros
+
+- **ASCII‑to‑video export**
+  - Renders the ASCII frames to a standard video file (e.g. MP4)
+  - Compatible with iOS, web, and social sharing
+  - Preserves the ASCII aesthetic
+
+All modes share the same renderer.
+
+---
+
+### ASCII rendering approach
+
+- Video is downsampled aggressively (e.g. 80×45, 120×68)
+- Each cell maps to a character based on:
+  - luminance
+  - optional color
+- Character sets are selectable:
+  - ` .:-=+*#%@`
+  - block elements
+  - custom fonts
+
+Optional enhancements:
+- Temporal dithering
+- Ordered dithering
+- Reduced palettes
+
+---
+
+### Audio support
+
+- Audio playback remains full quality
+- Audio timing drives video frame pacing
+- The TUI renderer never alters timing
+
+---
+
+### Exporting ASCII video
+
+Any frontend (CLI, Web, iOS, macOS) can export:
+
+- Terminal‑playable ASCII demo
+- ASCII frames as text files
+- ASCII video rendered to MP4
+
+This makes the ASCII mode a *first‑class output format*, not a gimmick.
+
+---
+
+### Architecture
+
+- ASCII rendering is a **frontend layer only**
+- Core produces time‑addressable frames
+- Renderer maps frames → characters
+- Same shader system can be applied *before* ASCII mapping
+
+---
+
+### CLI usage (examples)
+
+```bash
+vunkle play edit.vunkle.txt --tui
+vunkle export edit.vunkle.txt --ascii
+vunkle export edit.vunkle.txt --ascii-video
+```
+
+---
+
 ## Lightweight shader system
 
 Vunkle supports an **optional, lightweight shader system** layered on top of the beat timeline.
