@@ -1,19 +1,19 @@
 import Foundation
 import AVFoundation
-import VunkleCore
+import RevunkCore
 
 @main
-struct VunkleExportCLI {
+struct RevunkExportCLI {
     static func main() async {
         guard CommandLine.arguments.count >= 2 else {
-            fatalError("usage: vunkle-export edit.vunkle.txt")
+            fatalError("usage: revunk-export edit.revunk.txt")
         }
 
         let editURL = URL(fileURLWithPath: CommandLine.arguments[1])
         let baseDir = editURL.deletingLastPathComponent()
         let text = (try? String(contentsOf: editURL)) ?? ""
 
-        let parser = VunkleTextParser()
+        let parser = RevunkTextParser()
         let file = try! parser.parse(text)
 
         guard let videoName = file.video,
@@ -67,7 +67,7 @@ struct VunkleExportCLI {
 
         let outURL = baseDir
             .appendingPathComponent(videoURL.deletingPathExtension().lastPathComponent)
-            .appendingPathExtension("vunkle.out.mp4")
+            .appendingPathExtension("revunk.out.mp4")
 
         try? FileManager.default.removeItem(at: outURL)
 

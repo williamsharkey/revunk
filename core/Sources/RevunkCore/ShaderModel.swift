@@ -1,6 +1,6 @@
 import Foundation
 
-public struct VunkleShader: Equatable {
+public struct RevunkShader: Equatable {
     public let id: String
     public let file: URL
     public let applyRange: BeatRange

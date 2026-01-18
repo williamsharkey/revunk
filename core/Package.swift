@@ -4,25 +4,25 @@
 import PackageDescription
 
 let package = Package(
-    name: "VunkleCore",
+    name: "RevunkCore",
     products: [
         .library(
-            name: "VunkleCore",
-            targets: ["VunkleCore"]),
+            name: "RevunkCore",
+            targets: ["RevunkCore"]),
         .executable(
             name: "revunk",
             targets: ["revunk"]),
     ],
 targets: [
         .target(
-            name: "VunkleCore"),
+            name: "RevunkCore"),
         .executableTarget(
             name: "revunk",
-            dependencies: ["VunkleCore"]
+            dependencies: ["RevunkCore"]
         ),
         .testTarget(
-            name: "VunkleCoreTests",
-            dependencies: ["VunkleCore"]
+            name: "RevunkCoreTests",
+            dependencies: ["RevunkCore"]
         ),
     ]
 )

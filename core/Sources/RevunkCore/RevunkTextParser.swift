@@ -17,12 +17,17 @@ public struct Crossfade: Equatable {
     public let video: Bool
 }
 
-public struct BeatEdit: Equatable {
-    public let beat: Int
-    public let crossfade: Crossfade?
+public enum BeatTransition: Equatable {
+    case cut
+    case crossfade
 }
 
-public struct VunkleTextFile: Equatable {
+public struct BeatEdit: Equatable {
+    public let beat: Int
+    public let transitionToNext: BeatTransition
+}
+
+public struct RevunkTextFile: Equatable {
     public var video: String?
     public var downbeat: CMTime?
     public var bpm: Double?
@@ -33,15 +38,15 @@ public struct VunkleTextFile: Equatable {
     public var exportBeats: [BeatEdit] = []
 }
 
-public enum VunkleParseError: Error {
+public enum RevunkParseError: Error {
     case invalidTime(String)
 }
 
-public final class VunkleTextParser {
+public final class RevunkTextParser {
     public init() {}
 
-    public func parse(_ text: String) throws -> VunkleTextFile {
-        var result = VunkleTextFile()
+    public func parse(_ text: String) throws -> RevunkTextFile {
+        var result = RevunkTextFile()
         var section: String? = nil
 
         for rawLine in text.components(separatedBy: .newlines) {
@@ -100,8 +105,11 @@ public final class VunkleTextParser {
 
             case "export":
                 for token in line.split(separator: " ") {
-                    if let beat = Int(token) {
-                        result.exportBeats.append(.init(beat: beat, crossfade: nil))
+                    let parts = token.split(separator: "x")
+                    if parts.count == 1, let beat = Int(parts[0]) {
+                        result.exportBeats.append(BeatEdit(beat: beat, transitionToNext: .cut))
+                    } else if parts.count == 2, let beat = Int(parts[0]), let _ = Int(parts[1]) {
+                        result.exportBeats.append(.init(beat: beat, transitionToNext: .crossfade))
                     }
                 }
 
@@ -127,7 +135,7 @@ public final class VunkleTextParser {
                      + (Double(parts[1]) ?? 0) * 60
                      + (Double(parts[2]) ?? 0)
         default:
-            throw VunkleParseError.invalidTime(text)
+            throw RevunkParseError.invalidTime(text)
         }
 
         return CMTime(seconds: seconds, preferredTimescale: 600)

@@ -3,7 +3,7 @@ import Foundation
 import XCTest
 #endif
 
-final class VunkleExportIntegrationTests: XCTestCase {
+final class RevunkExportIntegrationTests: XCTestCase {
 
     var testVideo: String {
         ProcessInfo.processInfo.environment["REVUNK_TEST_VIDEO"] ?? ""

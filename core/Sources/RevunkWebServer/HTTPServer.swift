@@ -3,7 +3,7 @@ import Foundation
 import Network
 #endif
 
-public final class VunkleHTTPServer {
+public final class RevunkHTTPServer {
     private let port: UInt16
     private let root: URL
     private var listener: NWListener?

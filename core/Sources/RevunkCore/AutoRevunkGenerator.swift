@@ -1,6 +1,6 @@
 import Foundation
 
-public struct AutoVunkOptions {
+public struct AutoRevunkOptions {
     public let startBeat: Int
     public let endBeat: Int
     public let targetBeats: Int
@@ -14,8 +14,8 @@ public struct AutoVunkOptions {
     }
 }
 
-public final class AutoVunkGenerator {
-    public static func generate(options: AutoVunkOptions) -> [Int] {
+public final class AutoRevunkGenerator {
+    public static func generate(options: AutoRevunkOptions) -> [Int] {
         let total = max(0, options.endBeat - options.startBeat)
         guard total > 0 else { return [] }
         let stride = max(options.minStride, total / max(1, options.targetBeats))

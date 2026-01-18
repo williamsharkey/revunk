@@ -242,14 +242,14 @@ This walkthrough exists to build confidence, not to hide complexity.
 
 ---
 
-## Multivunks (composing revunks)
+## Multirevunks (composing revunks)
 
-### Multivunk text schema (draft)
+### Multirevunk text schema (draft)
 
-Multivunks extend the text‑first model. A multivunk file references multiple revunks and defines how their beat clocks relate.
+Multirevunks extend the text‑first model. A multirevunk file references multiple revunks and defines how their beat clocks relate.
 
 ```text
-# multivunk.revunk.txt
+# multirevunk.revunk.txt
 
 output:
   bpm: 120
@@ -288,13 +288,13 @@ export:
 
 Notes:
 - Each source keeps its own anchors internally.
-- The multivunk layer only declares **relationships** between clocks.
+- The multirevunk layer only declares **relationships** between clocks.
 - All transforms are explicit and reversible.
 
 
-revunk supports **multivunks**: compositions made from multiple already‑revunkd videos.
+revunk supports **multirevunks**: compositions made from multiple already‑revunkd videos.
 
-A multivunk treats each source revunk as a **beat‑aware block** that can be tuned, aligned, and arranged together.
+A multirevunk treats each source revunk as a **beat‑aware block** that can be tuned, aligned, and arranged together.
 
 ### Tempo relationship modes
 
@@ -303,7 +303,7 @@ Each source revunk can operate in one of these modes:
 - **Follow source**: keep the original revunk’s BPM and beat timing.
 - **Follow master**: conform to a designated master revunk’s BPM.
 - **Fixed output BPM**: all sources conform to a specified output BPM.
-- **Timeline BPM changes**: explicit BPM changes at given beats in the multivunk timeline.
+- **Timeline BPM changes**: explicit BPM changes at given beats in the multirevunk timeline.
 
 All modes are explicit and text‑representable.
 
@@ -534,9 +534,9 @@ All frontends use the same shader code and parameters.
 
 ---
 
-## Re‑vunklable exports (configurable embedding & quines)
+## Re‑revunklable exports (configurable embedding & quines)
 
-Every revunk export is **metadata‑complete and re‑vunklable**.
+Every revunk export is **metadata‑complete and re‑revunklable**.
 
 This means:
 - **Source media is not embedded** in the export
@@ -581,7 +581,7 @@ Embedded or referenced sources always include:
 2. **Project revunk metadata**
    - The exact `.revunk.txt` used
    - Derived settings (BPM, anchors, grid calibration)
-   - Multivunk relationships (if any)
+   - Multirevunk relationships (if any)
 
 3. **Export descriptor (metadata revunk)**
    - Describes how this output should be re‑revunkd
@@ -643,7 +643,7 @@ The exact container format is abstracted by the engine.
 
 ---
 
-### Reopening, remixing, and auto‑vunking
+### Reopening, remixing, and auto‑revunking
 
 When opening an exported artifact:
 
@@ -654,7 +654,7 @@ When opening an exported artifact:
 
 ---
 
-### Auto‑vunk compression
+### Auto‑revunk compression
 
 revunk can automatically compress long recordings into shorter, beat‑faithful edits.
 
@@ -664,7 +664,7 @@ Options include:
 - Target duration (e.g. 3 minutes)
 - Minimum stride length (in beats)
 
-The engine generates an **auto‑vunk script** that skips through the source while preserving beat structure.
+The engine generates an **auto‑revunk script** that skips through the source while preserving beat structure.
 
 Example (conceptual):
 
@@ -799,7 +799,7 @@ If you are extending revunk:
 - Preserve **one binary** (`revunk`)
 - Preserve **text-first truth**
 - Do not duplicate semantics in frontends
-- Keep exports re‑vunklable
+- Keep exports re‑revunklable
 - Prefer adding new output modes over new internal state
 
 If a feature cannot round‑trip through text, metadata, and export, it is likely wrong.

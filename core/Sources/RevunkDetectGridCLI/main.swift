@@ -13,15 +13,15 @@ struct GridCalibration {
 let defaultGrid = GridCalibration(x: 0.38, y: 0.04, w: 0.24, h: 0.24)
 
 @main
-struct VunkleDetectGridCLI {
+struct RevunkDetectGridCLI {
     static func main() async {
         guard CommandLine.arguments.count >= 2 else {
-            fatalError("usage: vunkle-detect-grid video.mp4 [--debug] [--emit-vunkle] [--grid x y w h]")
+            fatalError("usage: revunk-detect-grid video.mp4 [--debug] [--emit-revunk] [--grid x y w h]")
         }
 
         let videoURL = URL(fileURLWithPath: CommandLine.arguments[1])
         let debug = CommandLine.arguments.contains("--debug")
-        let emit = CommandLine.arguments.contains("--emit-vunkle")
+        let emit = CommandLine.arguments.contains("--emit-revunk")
 
         let grid = parseGridOverride() ?? defaultGrid
 
@@ -85,7 +85,7 @@ struct VunkleDetectGridCLI {
         }
 
         if emit {
-            emitVunkle(videoURL: videoURL, bpm: bpm, anchors: anchors, grid: grid)
+            emitRevunk(videoURL: videoURL, bpm: bpm, anchors: anchors, grid: grid)
         }
     }
 
@@ -100,8 +100,8 @@ struct VunkleDetectGridCLI {
         return GridCalibration(x: x, y: y, w: w, h: h)
     }
 
-    static func emitVunkle(videoURL: URL, bpm: Double, anchors: [(Int, CMTime)], grid: GridCalibration) {
-        let outURL = videoURL.deletingPathExtension().appendingPathExtension("auto.vunkle.txt")
+    static func emitRevunk(videoURL: URL, bpm: Double, anchors: [(Int, CMTime)], grid: GridCalibration) {
+        let outURL = videoURL.deletingPathExtension().appendingPathExtension("auto.revunk.txt")
         var lines: [String] = []
         lines.append("video: \(videoURL.lastPathComponent)")
         lines.append("")

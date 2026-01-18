@@ -1,8 +1,8 @@
 import Foundation
 
 public final class ShaderParser {
-    public static func parse(from text: String) -> [VunkleShader] {
-        var shaders: [VunkleShader] = []
+    public static func parse(from text: String) -> [RevunkShader] {
+        var shaders: [RevunkShader] = []
         var current: [String: String] = [:]
 
         for line in text.split(separator: "\n") {
@@ -25,7 +25,7 @@ public final class ShaderParser {
         return shaders
     }
 
-    private static func build(from dict: [String: String]) -> VunkleShader {
+    private static func build(from dict: [String: String]) -> RevunkShader {
         let id = dict["id"] ?? UUID().uuidString
         let file = URL(fileURLWithPath: dict["file"] ?? "")
         let applyRange: BeatRange
@@ -41,6 +41,6 @@ public final class ShaderParser {
             params[k] = Double(v) ?? 0
         }
 
-        return VunkleShader(id: id, file: file, applyRange: applyRange, params: params)
+        return RevunkShader(id: id, file: file, applyRange: applyRange, params: params)
     }
 }

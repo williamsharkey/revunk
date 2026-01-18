@@ -1,5 +1,5 @@
 import Foundation
-import VunkleCore
+import RevunkCore
 
 func printUsage() {
     print("""
@@ -32,7 +32,7 @@ case "open":
         print("missing export file")
         exit(1)
     }
-    let meta = try VunkleOpen.readMetadata(from: URL(fileURLWithPath: path))
+    let meta = try RevunkOpen.readMetadata(from: URL(fileURLWithPath: path))
     var text = meta.projectText
 
     // Fingerprint-based source discovery

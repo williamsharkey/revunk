@@ -1,12 +1,12 @@
 import Foundation
-import VunkleCore
+import RevunkCore
 
 @main
-struct VunkleFormatCLI {
+struct RevunkFormatCLI {
     static func main() {
         let args = CommandLine.arguments
         guard args.count >= 2 else {
-            fatalError("usage: vunkle-format file.vunkle.txt [-i]")
+            fatalError("usage: revunk-format file.revunk.txt [-i]")
         }
 
         let path = args[1]

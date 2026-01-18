@@ -1,23 +1,23 @@
-# Vunkle macOS App
+# Revunk macOS App
 
-This is the macOS app target for **Vunkle**.
+This is the macOS app target for **Revunk**.
 
 The macOS app is a thin SwiftUI wrapper around the same engine used by:
-- the `vunkle` CLI
+- the `revunk` CLI
 - the WebSocket web UI
 - the iOS app
 
 ## Principles
 
 - No new semantics live here
-- All edits round-trip through `.vunkle.txt`
-- The app embeds the `vunkle` engine directly
+- All edits round-trip through `.revunk.txt`
+- The app embeds the `revunk` engine directly
 - Web, CLI, and macOS behave identically
 
 ## Intended behavior
 
-- Open `.vunkle.txt` files
-- Open video files and auto-generate vunkles
+- Open `.revunk.txt` files
+- Open video files and auto-generate revunks
 - Full Beat Alignment Walkthrough UI
 - ACID-style beat grid editor
 - Export using the same pipeline as CLI

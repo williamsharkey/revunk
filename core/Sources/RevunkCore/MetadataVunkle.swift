@@ -1,6 +1,6 @@
 import Foundation
 
-public struct MetadataVunkle: Codable {
+public struct MetadataRevunk: Codable {
     public let engine: String
     public let engineVersion: String
     public let createdAt: Date
@@ -9,7 +9,7 @@ public struct MetadataVunkle: Codable {
     public let notes: [String]
 
     public init(projectText: String, sources: [SourceFingerprint], notes: [String] = []) {
-        self.engine = "vunkle"
+        self.engine = "revunk"
         self.engineVersion = "0.x"
         self.createdAt = Date()
         self.projectText = projectText
@@ -19,7 +19,7 @@ public struct MetadataVunkle: Codable {
 
     public func asText() -> String {
         var lines: [String] = []
-        lines.append("# metadata.vunkle.txt")
+        lines.append("# metadata.revunk.txt")
         lines.append("engine: \(engine)")
         lines.append("engine-version: \(engineVersion)")
         lines.append("created-at: \(createdAt)")

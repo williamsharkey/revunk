@@ -1,8 +1,8 @@
 #if canImport(XCTest)
 import XCTest
-@testable import VunkleCore
+@testable import RevunkCore
 
-final class VunkleTextParserTests: XCTestCase {
+final class RevunkTextParserTests: XCTestCase {
     func testBasicFileParsing() throws {
         let text = """
         video: test.mov
@@ -14,7 +14,7 @@ final class VunkleTextParserTests: XCTestCase {
           5  6
         """
 
-        let parser = VunkleTextParser()
+        let parser = RevunkTextParser()
         let file = try parser.parse(text)
 
         XCTAssertEqual(file.video, "test.mov")
@@ -35,7 +35,7 @@ final class VunkleTextParserTests: XCTestCase {
           33 90
         """
 
-        let file = try VunkleTextParser().parse(text)
+        let file = try RevunkTextParser().parse(text)
 
         XCTAssertEqual(file.anchors.count, 1)
         XCTAssertEqual(file.anchors.first?.index, 32)

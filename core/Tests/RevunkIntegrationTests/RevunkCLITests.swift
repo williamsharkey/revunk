@@ -1,6 +1,6 @@
 import XCTest
 
-final class VunkleCLITests: XCTestCase {
+final class RevunkCLITests: XCTestCase {
 
     /// Set this env var to point at a real test video (e.g. secret-world.mp4)
     /// export REVUNK_TEST_VIDEO=/path/to/video.mp4

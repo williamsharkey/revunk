@@ -3,7 +3,7 @@ import Foundation
 import Network
 #endif
 
-public final class VunkleWebSocketServer {
+public final class RevunkWebSocketServer {
     private let port: UInt16
     private var listener: NWListener?
     private var stateText: String
@@ -51,7 +51,7 @@ public final class VunkleWebSocketServer {
             if let t = msg.text { stateText = t }
             sendState(on: conn)
         case .format:
-            let formatted = VunkleFormatCLI.format(text: stateText)
+            let formatted = RevunkFormatCLI.format(text: stateText)
             stateText = formatted
             sendState(on: conn)
         default:
