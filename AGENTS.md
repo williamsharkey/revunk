@@ -6,6 +6,27 @@ It is written to avoid rediscovery of dead ends and to preserve the hard‑won i
 
 ---
 
+## Resolution (January 2026)
+
+The long-standing `AVFoundationErrorDomain Code=-11841` ("The video could not be composed.") has been **resolved**.
+
+The issue was, as suspected, a framework constraint in `AVFoundation`. The fix was to abandon the symmetric multi-track crossfade model and implement **Path A: Baseline Track Model**.
+
+The successful implementation can be found in `core/Sources/revunkCore/RevunkExporter.swift`. It works as follows:
+
+1.  **A single `baseVideoTrack`** is populated contiguously with all video segments from the edit, one after another.
+2.  **An `overlayVideoTrack`** is used *only* for crossfades.
+3.  When a crossfade is detected, the *incoming* video segment is inserted into the `overlayVideoTrack` at the appropriate time.
+4.  Two `AVMutableVideoCompositionLayerInstruction` objects are created for the crossfade period:
+    *   One for the `baseVideoTrack` with an opacity ramp from 1.0 to 0.0.
+    *   One for the `overlayVideoTrack` with an opacity ramp from 0.0 to 1.0.
+5.  These two layer instructions are combined into a single `AVMutableVideoCompositionInstruction` for the crossfade duration.
+6.  For non-crossfading segments, a single `AVMutableVideoCompositionLayerInstruction` for the `baseVideoTrack` is used.
+
+This approach satisfies `AVFoundation`'s expectations and produces correct crossfades. All tests in `test.sh`, `test_reverse.sh`, and `test_video_crossfade.sh` now pass.
+
+---
+
 ## Project Context
 
 **revunk** is a beat‑first, text‑first video remix engine.
@@ -27,8 +48,6 @@ All work described here concerns:
 ```
 core/Sources/VunkleCore/RevunkExporter.swift
 ```
-
-This file has been **fully rewritten** multiple times during debugging. The current version reflects the *most correct model attempted so far*, but AVFoundation still rejects it.
 
 ---
 
@@ -226,8 +245,38 @@ Any continuation now starts with a **complete map of the terrain**.
 - ✅ Parser semantics correct
 - ✅ Exporter logic deeply explored
 - ❌ AVFoundation rejects symmetric multi‑track crossfade model
-- 🔜 Must change composition strategy
+- ✅ **Resolved:** "Baseline Track Model" (Path A) is implemented and working.
 
 ---
 
 If you are reading this as a new agent: **do not feel behind**. You are starting from a position of hard‑won clarity.
+
+---
+# macOS App Notes
+
+This is the macOS app target for **Revunk**.
+
+The macOS app is a thin SwiftUI wrapper around the same engine used by:
+- the `revunk` CLI
+- the WebSocket web UI
+- the iOS app
+
+## Principles
+
+- No new semantics live here
+- All edits round-trip through `.revunk.txt`
+- The app embeds the `revunk` engine directly
+- Web, CLI, and macOS behave identically
+
+## Intended behavior
+
+- Open `.revunk.txt` files
+- Open video files and auto-generate revunks
+- Full Beat Alignment Walkthrough UI
+- ACID-style beat grid editor
+- Export using the same pipeline as CLI
+
+## Status
+
+This target is currently a scaffold.
+It exists to ensure macOS is a first-class citizen alongside CLI, Web, and iOS.

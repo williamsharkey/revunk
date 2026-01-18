@@ -45,107 +45,68 @@ public enum RevunkExporter {
 
         // -------- Composition --------
         let composition = AVMutableComposition()
-        let hasCrossfades = project.exportBeats.contains { $0.transitionToNext == .crossfade }
 
-        let singleTrack = hasCrossfades ? nil : composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)
-        let trackA = hasCrossfades ? composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid) : nil
-        let trackB = hasCrossfades ? composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid) : nil
+        let baseVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)
+        let overlayVideoTrack = composition.addMutableTrack(withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid)
         let audioTrack = composition.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid)
 
         let srcTransform = srcVideo.preferredTransform
 
-        var instructions: [AVMutableVideoCompositionInstruction] = []
         var cursorFrames = 0
 
-        var activeTrack = trackA
-        var inactiveTrack = trackB
-
-        // -------- Main loop --------
-        var i = 0
-        while i < project.exportBeats.count {
-            let edit = project.exportBeats[i]
+        // Populate baseVideoTrack contiguously and handle audio
+        for (idx, edit) in project.exportBeats.enumerated() {
             let sourceStartSeconds = Double(edit.beat - 1) * secondsPerBeat
             let sourceStartFrames = Int(round(sourceStartSeconds * Double(fps)))
             let srcRange = CMTimeRange(start: t(sourceStartFrames), duration: beatDuration)
 
-            if let single = singleTrack {
-                try single.insertTimeRange(srcRange, of: srcVideo, at: t(cursorFrames))
-                let layer = AVMutableVideoCompositionLayerInstruction(assetTrack: single)
-                layer.setTransform(srcTransform, at: .zero)
-                let instr = AVMutableVideoCompositionInstruction()
-                instr.timeRange = CMTimeRange(start: t(cursorFrames), duration: beatDuration)
-                instr.layerInstructions = [layer]
-                instructions.append(instr)
-                cursorFrames += framesPerBeat
-                i += 1
-                continue
+            try baseVideoTrack?.insertTimeRange(srcRange, of: srcVideo, at: t(cursorFrames))
+
+            if let sa = srcAudio, let ca = audioTrack {
+                try ca.insertTimeRange(srcRange, of: sa, at: t(cursorFrames))
             }
+            cursorFrames += framesPerBeat
+        }
 
-            guard let outTrack = activeTrack, let inTrack = inactiveTrack else { break }
+        var instructions: [AVMutableVideoCompositionInstruction] = []
+        cursorFrames = 0 // Reset cursor for instruction generation
 
-            try outTrack.insertTimeRange(srcRange, of: srcVideo, at: t(cursorFrames))
+        // Generate instructions for video composition
+        for (idx, edit) in project.exportBeats.enumerated() {
+            let instructionTimeRange = CMTimeRange(start: t(cursorFrames), duration: beatDuration)
+            let videoCompositionInstruction = AVMutableVideoCompositionInstruction()
+            videoCompositionInstruction.timeRange = instructionTimeRange
 
-            if edit.transitionToNext == .crossfade && fadeFrames > 0 && i + 1 < project.exportBeats.count {
-                let nextEdit = project.exportBeats[i + 1]
+            if edit.transitionToNext == .crossfade && fadeFrames > 0 && idx + 1 < project.exportBeats.count {
+                let nextEdit = project.exportBeats[idx + 1]
                 let nextSourceStartSeconds = Double(nextEdit.beat - 1) * secondsPerBeat
                 let nextSourceStartFrames = Int(round(nextSourceStartSeconds * Double(fps)))
                 let overlapStartFrames = cursorFrames + framesPerBeat - fadeFrames
 
-                // Insert entire next beat contiguously on inactive track
-                try inTrack.insertTimeRange(
+                // Insert the next beat's video into the overlay track for the crossfade
+                try overlayVideoTrack?.insertTimeRange(
                     CMTimeRange(start: t(nextSourceStartFrames), duration: beatDuration),
                     of: srcVideo,
                     at: t(overlapStartFrames)
                 )
 
-                // A: outgoing only
-                let preDurFrames = framesPerBeat - fadeFrames
-                let preLayer = AVMutableVideoCompositionLayerInstruction(assetTrack: outTrack)
-                preLayer.setTransform(srcTransform, at: .zero)
-                let pre = AVMutableVideoCompositionInstruction()
-                pre.timeRange = CMTimeRange(start: t(cursorFrames), duration: t(preDurFrames))
-                pre.layerInstructions = [preLayer]
-                instructions.append(pre)
+                let baseLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: baseVideoTrack!)
+                baseLayerInstruction.setTransform(srcTransform, at: .zero)
+                baseLayerInstruction.setOpacityRamp(fromStartOpacity: 1.0, toEndOpacity: 0.0, timeRange: CMTimeRange(start: t(overlapStartFrames), duration: fadeDuration))
 
-                // B: crossfade
-                let outLayer = AVMutableVideoCompositionLayerInstruction(assetTrack: outTrack)
-                let inLayer = AVMutableVideoCompositionLayerInstruction(assetTrack: inTrack)
-                outLayer.setTransform(srcTransform, at: .zero)
-                inLayer.setTransform(srcTransform, at: .zero)
-                let fadeRange = CMTimeRange(start: t(overlapStartFrames), duration: fadeDuration)
-                outLayer.setOpacityRamp(fromStartOpacity: 1, toEndOpacity: 0, timeRange: fadeRange)
-                inLayer.setOpacityRamp(fromStartOpacity: 0, toEndOpacity: 1, timeRange: fadeRange)
-                let fade = AVMutableVideoCompositionInstruction()
-                fade.timeRange = fadeRange
-                fade.layerInstructions = [inLayer, outLayer]
-                instructions.append(fade)
+                let overlayLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: overlayVideoTrack!)
+                overlayLayerInstruction.setTransform(srcTransform, at: .zero)
+                overlayLayerInstruction.setOpacityRamp(fromStartOpacity: 0.0, toEndOpacity: 1.0, timeRange: CMTimeRange(start: t(overlapStartFrames), duration: fadeDuration))
 
-                // C: incoming tail
-                let postLayer = AVMutableVideoCompositionLayerInstruction(assetTrack: inTrack)
-                postLayer.setTransform(srcTransform, at: .zero)
-                let post = AVMutableVideoCompositionInstruction()
-                post.timeRange = CMTimeRange(start: t(cursorFrames + framesPerBeat), duration: beatDuration)
-                post.layerInstructions = [postLayer]
-                instructions.append(post)
-
-                cursorFrames += framesPerBeat
-                activeTrack = inTrack
-                inactiveTrack = outTrack
-                i += 2
+                videoCompositionInstruction.layerInstructions = [baseLayerInstruction, overlayLayerInstruction]
             } else {
-                let layer = AVMutableVideoCompositionLayerInstruction(assetTrack: outTrack)
-                layer.setTransform(srcTransform, at: .zero)
-                let instr = AVMutableVideoCompositionInstruction()
-                instr.timeRange = CMTimeRange(start: t(cursorFrames), duration: beatDuration)
-                instr.layerInstructions = [layer]
-                instructions.append(instr)
-                cursorFrames += framesPerBeat
-                i += 1
+                let baseLayerInstruction = AVMutableVideoCompositionLayerInstruction(assetTrack: baseVideoTrack!)
+                baseLayerInstruction.setTransform(srcTransform, at: .zero)
+                videoCompositionInstruction.layerInstructions = [baseLayerInstruction]
             }
 
-            if let sa = srcAudio, let ca = audioTrack {
-                try ca.insertTimeRange(srcRange, of: sa, at: t(cursorFrames))
-            }
+            instructions.append(videoCompositionInstruction)
+            cursorFrames += framesPerBeat
         }
 
         // Sort instructions by time (required)
